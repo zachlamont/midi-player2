@@ -1,13 +1,20 @@
-// Playbar.jsx
-
 import React, { useState, useEffect } from "react";
 import { Transport } from "tone";
 
-function Playbar({ duration }) {
+function Playbar({ duration, isPlaying, onTogglePlayback }) {
   const [position, setPosition] = useState(0);
 
+  const onPlayPauseClick = async () => {
+    await Tone.start();
+
+    if (Transport.state === "started") {
+      Transport.pause();
+    } else {
+      Transport.start();
+    }
+  };
+
   useEffect(() => {
-    // Update position every 50 milliseconds for smoother movement
     const interval = setInterval(() => {
       setPosition(Transport.seconds);
     }, 50);
@@ -21,15 +28,9 @@ function Playbar({ duration }) {
     <div className="playbar">
       <button
         className="play-pause-btn"
-        onClick={() => {
-          if (Transport.state === "started") {
-            Transport.pause();
-          } else {
-            Transport.start();
-          }
-        }}
+        onClick={onTogglePlayback || onPlayPauseClick}
       >
-        {Transport.state === "started" ? "Pause" : "Play"}
+        {isPlaying ? "Pause" : "Play"}
       </button>
       <div className="progress-container">
         <div

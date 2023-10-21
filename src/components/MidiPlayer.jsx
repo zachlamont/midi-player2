@@ -3,14 +3,14 @@ import { Sampler, Part, Transport } from "tone";
 import { Midi } from "@tonejs/midi";
 import midiPath from "../assets/groove.mid";
 
-const MidiPlayer = () => {
-  // Removed { midiData } from here
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [midiData, setMidiData] = useState(null); // Kept this as local state
+const MidiPlayer = ({ isPlaying, onTogglePlayback }) => {
+  const [midiData, setMidiData] = useState(null);
   const [sampler, setSampler] = useState(null);
   const [part, setPart] = useState(null);
 
-  const togglePlayback = async () => {
+  const togglePlaybackLocal = async () => {
+    await Tone.start();
+
     if (Transport.context.state !== "running") {
       await Transport.context.resume();
     }
@@ -84,7 +84,9 @@ const MidiPlayer = () => {
 
   return (
     <div>
-      <button onClick={togglePlayback}>{isPlaying ? "Stop" : "Play"}</button>
+      <button onClick={onTogglePlayback || togglePlaybackLocal}>
+        {isPlaying ? "Stop" : "Play"}
+      </button>
     </div>
   );
 };
