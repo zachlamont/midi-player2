@@ -79,8 +79,6 @@
   margin-top: 10px;
 }
 
-
-
 /* Playbar.css ---------------------------------- */
 
 .playbar {
@@ -118,10 +116,51 @@
 
 .progress {
   height: 100%;
-  background-color: #2196F3; /* Blue color */
+  background-color: #2196f3; /* Blue color */
 }
 
 .timer {
   color: #333;
   font-size: 0.9rem;
+}
+
+/* SeekablePlaybar.css */
+.playbar {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.play-pause-btn {
+  margin-right: 10px;
+  padding: 5px 15px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.play-pause-btn:hover {
+  background-color: #0056b3;
+}
+
+.progress-container {
+  flex-grow: 1;
+  height: 5px;
+  background-color: #e0e0e0;
+  margin: 0 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress {
+  height: 5px;
+  background-color: #007bff;
+}
+
+.timer {
+  min-width: 30px;
+  text-align: center;
 }
