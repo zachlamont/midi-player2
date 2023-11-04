@@ -3,11 +3,26 @@ import React, { useState, useEffect, useRef } from "react";
 import { Transport } from "tone";
 
 function SeekablePlaybar({ duration, isPlaying, onTogglePlayback }) {
-  // State to track the current position of the playhead.
   const [position, setPosition] = useState(0);
+  const [transportInfo, setTransportInfo] = useState({
+    seconds: 0,
+    ticks: 0,
+    position: "0:0:0",
+    progress: 0,
+  });
 
   // A reference to the progress bar container to calculate click/drag positions.
   const progressContainerRef = useRef(null);
+
+  // Function to update the state with the current transport info
+  const updateTransportInfo = () => {
+    setTransportInfo({
+      seconds: Transport.seconds,
+      ticks: Transport.ticks,
+      position: Transport.position,
+      progress: Transport.loop ? Transport.progress : 0,
+    });
+  };
 
   // Function to handle when the mouse button is released after dragging.
   const handleMouseUp = (e) => {
@@ -41,14 +56,15 @@ function SeekablePlaybar({ duration, isPlaying, onTogglePlayback }) {
     setPosition(newTime);
   };
 
-  // Use an effect to regularly update the visual playhead position to match the Transport's position.
+  // Use an effect to regularly update the visual playhead position to match the Transport's position
+  // and to fetch the current transport information.
   useEffect(() => {
     const interval = setInterval(() => {
       setPosition(Transport.seconds);
+      updateTransportInfo();
     }, 50);
 
     return () => {
-      // Cleanup by clearing the interval and removing any remaining event listeners.
       clearInterval(interval);
       document.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mousemove", handleDrag);
@@ -56,19 +72,27 @@ function SeekablePlaybar({ duration, isPlaying, onTogglePlayback }) {
   }, []);
 
   return (
-    <div className="playbar">
-      <button className="play-pause-btn" onClick={onTogglePlayback}>
-        {isPlaying ? "Pause" : "Play"}
-      </button>
-      <div
-        className="progress-container"
-        ref={progressContainerRef}
-        onMouseDown={handleMouseDown}
-      >
+    <div className="seekable-playbar">
+      <div className="seekable-playbar-left">
+        <button className="play-pause-btn" onClick={onTogglePlayback}>
+          {isPlaying ? "Pause" : "Play"}
+        </button>
         <div
-          className="progress"
-          style={{ width: `${(position / duration) * 100}%` }}
-        ></div>
+          className="progress-container"
+          ref={progressContainerRef}
+          onMouseDown={handleMouseDown}
+        >
+          <div
+            className="progress"
+            style={{ width: `${(position / duration) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+      <div className="transport-info">
+        <div>Seconds: {transportInfo.seconds.toFixed(2)}</div>
+        <div>Ticks: {transportInfo.ticks}</div>
+        <div>Position: {transportInfo.position}</div>
+        <div>Progress: {(transportInfo.progress * 100).toFixed(2)}%</div>
       </div>
       <span className="timer">{Math.floor(position)}</span>
     </div>
