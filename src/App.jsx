@@ -4,6 +4,8 @@ import MidiComponent from "./components/MidiComponent";
 import MidiPlayer from "./components/MidiPlayer";
 import Playbar from "./components/Playbar";
 import SeekablePlaybar from "./components/SeekablePlaybar";
+import PianoRoll from "./components/PianoRoll";
+
 import midiPath from "./assets/groove.mid";
 import { Midi } from "@tonejs/midi";
 import * as Tone from "tone";
@@ -65,6 +67,8 @@ function App() {
           duration={midiData.duration}
         />
       )}
+
+      {midiData && <PianoRoll midiData={midiData} />}
     </div>
   );
 }
