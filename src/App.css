@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  width:100%;
+  width: 100%;
 }
 .App {
   width: 100%;
@@ -150,6 +150,7 @@
   background: #f8f8f8;
   border: 1px solid #ddd;
   overflow: auto;
+  margin-top: 1em;
 }
 
 .note {

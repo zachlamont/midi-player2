@@ -1,14 +1,13 @@
-// PianoRoll.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Transport } from "tone";
 
 function PianoRoll({ midiData }) {
-  // This assumes midiData is an object containing the notes and their timing information.
   const [notes, setNotes] = useState([]);
+  const [playheadPosition, setPlayheadPosition] = useState(0);
+  const pianoRollRef = useRef(null);
 
   useEffect(() => {
     if (midiData) {
-      // Here we convert midi data into a more useful format for rendering the piano roll.
-      // You would replace this with your actual logic to parse midiData
       const parsedNotes = midiData.tracks.flatMap((track) =>
         track.notes.map((note) => ({
           time: note.time,
@@ -21,28 +20,84 @@ function PianoRoll({ midiData }) {
     }
   }, [midiData]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Transport.state === "started") {
+        setPlayheadPosition(Transport.seconds);
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    document.addEventListener("mousemove", handleDrag);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleDrag = (e) => {
+    if (pianoRollRef.current) {
+      const bounds = pianoRollRef.current.getBoundingClientRect();
+      const dragPosition = Math.max(e.clientX - bounds.left, 0); // Prevents negative position
+      const newTime = Math.max(
+        (dragPosition / bounds.width) * midiData.duration,
+        0
+      ); // Snaps to zero if negative
+      setPlayheadPosition(newTime);
+    }
+  };
+
+  const handleMouseUp = (e) => {
+    document.removeEventListener("mousemove", handleDrag);
+    document.removeEventListener("mouseup", handleMouseUp);
+
+    if (pianoRollRef.current) {
+      const bounds = pianoRollRef.current.getBoundingClientRect();
+      const clickPosition = Math.max(e.clientX - bounds.left, 0); // Prevents negative position
+      const newTime = Math.max(
+        (clickPosition / bounds.width) * midiData.duration,
+        0
+      ); // Snaps to zero if negative
+      Transport.seconds = newTime;
+    }
+  };
+
   return (
-    <div className="piano-roll">
+    <div
+      className="piano-roll"
+      ref={pianoRollRef}
+      onMouseDown={handleMouseDown}
+      style={{ position: "relative" }} // Ensure that child components are positioned relative to this container
+    >
       {notes.map((note, index) => (
         <Note key={index} note={note} />
       ))}
+
+      <div
+        className="playhead"
+        style={{
+          left: `${(playheadPosition / midiData.duration) * 100}%`,
+          height: "100%",
+          width: "2px",
+          backgroundColor: "grey",
+          position: "absolute",
+          zIndex: 10,
+        }}
+      />
     </div>
   );
 }
 
-// A basic Note component that could be used to display individual notes.
-// You'll need to calculate the style based on the note's timing and pitch.
 function Note({ note }) {
-  // The left position is based on the note's start time,
-  // the width is based on the note's duration,
-  // and the top position is based on the note's pitch (MIDI number).
+  // Styles as defined before or updated as needed
   const style = {
-    left: `${note.time * 100}px`, // This is a placeholder, use the actual conversion for your data
-    width: `${note.duration * 100}px`, // This is a placeholder, use the actual conversion for your data
-    top: `${(127 - note.midi) * 10}px`, // This assumes there are 127 MIDI notes
+    left: `${note.time * 100}px`,
+    width: `${note.duration * 100}px`,
+    top: `${(127 - note.midi) * 10}px`,
     position: "absolute",
-    backgroundColor: "blue", // Placeholder color, you might want to change it
-    height: "10px", // The height of each note
+    backgroundColor: "blue",
+    height: "10px",
   };
 
   return (
