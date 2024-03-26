@@ -9,6 +9,7 @@ import PianoRoll from "./components/PianoRoll";
 import midiPath from "./assets/groove.mid";
 import { Midi } from "@tonejs/midi";
 import * as Tone from "tone";
+import MidiTransposer from "./components/MidiTransposer";
 
 function App() {
   const [midiData, setMidiData] = useState(null);
@@ -69,6 +70,8 @@ function App() {
       )}
 
       {midiData && <PianoRoll midiData={midiData} />}
+
+      <MidiTransposer />
     </div>
   );
 }
